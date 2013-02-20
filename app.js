@@ -1,5 +1,5 @@
 var AG = (function () {
-  var FPS = (1000/60);
+  var FPS = (1000/100);
 
   var Asteroid = function (x, y, size, vel) {
     this.position = [x, y];
@@ -51,8 +51,15 @@ var AG = (function () {
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
     velX = plusOrMinus * ((Math.random() * 2));
     velY = plusOrMinus * ((Math.random() * 2));
+    velX1 = plusOrMinus * ((Math.random() * 2));
+    velY1 = plusOrMinus * ((Math.random() * 2));
+    velX2 = plusOrMinus * ((Math.random() * 2));
+    velY2 = plusOrMinus * ((Math.random() * 2));
 
-    return [ new Asteroid(asteroid.position[0],asteroid.position[1], new Asteroid(asteroid.position[0],asteroid.position[1], size/2, [velX, velY]), new Asteroid(asteroid.position[0],asteroid.position[1], size/2, asteroid.vel) ];
+    return [ new Asteroid(asteroid.position[0],asteroid.position[1], size/2, [velX1, velY1]),
+             new Asteroid(asteroid.position[0],asteroid.position[1], size/2, [velX, velY]),
+             new Asteroid(asteroid.position[0],asteroid.position[1], size/2, asteroid.vel),
+             new Asteroid(asteroid.position[0],asteroid.position[1], size/2, [velX2, velY2]) ];
   }
 
   var Ship = function(game) {
@@ -177,6 +184,7 @@ var AG = (function () {
       _.each(this.bullets, function(bullet) {
         bullet.draw(ctx);
       });
+
     }
 
     this.update = function() {
@@ -195,10 +203,10 @@ var AG = (function () {
       that.update();
       that.draw();
 
-      // if (ship.isHit()) {
-      //   alert("You're dead!");
-      //   clearInterval(intervalID);
-      // };
+      if (ship.isHit()) {
+        alert("You're dead!");
+        clearInterval(intervalID);
+      };
     }
 
     this.start = function(){
