@@ -48,12 +48,36 @@ var AG = (function () {
     this.position = [250, 250];
     this.size = 20;
     var that = this;
+    var vel = [0, 0];
 
     this.draw = function(ctx) {
       ctx.beginPath();
       ctx.arc(this.position[0], this.position[1],(this.size)/2 ,0,Math.PI*2,true);
       ctx.fillStyle = "rgb(0,200,0)";
       ctx.fill();
+    };
+
+    this.update = function() {
+      this.position[0] = this.position[0] + vel[0];
+      this.position[1] = this.position[1] + vel[1];
+
+      if (this.position[0] < 0) {
+        this.position[0] = 500;
+      } else if (this.position[0] > 500) {
+        this.position[0] = 0;
+      }
+
+      if (this.position[1] < 0) {
+        this.position[1] = 500;
+      } else if (this.position[1] > 500) {
+        this.position[1] = 0;
+      }
+
+    };
+
+    this.power = function(dx, dy) {
+      vel[0] = vel[0] + dx;
+      vel[1] = vel[1] + dy;
     };
 
     this.isHit = function() {
@@ -79,6 +103,10 @@ var AG = (function () {
       this.asteroids.push(Asteroid.randomAsteroid());
     };
 
+    key('up', function(){ ship.power(0, -0.5) });
+    key('down', function(){ ship.power(0, 0.5) });
+    key('left', function(){ ship.power(-0.5, 0) });
+    key('right', function(){ ship.power(0.5, 0) });
 
     this.draw = function() {
       ctx.clearRect(0,0,500,500);
@@ -92,7 +120,7 @@ var AG = (function () {
       _.each(this.asteroids, function(asteroid) {
         asteroid.update();
       });
-      // ship.update();
+      ship.update();
     }
 
     this.updateDraw = function() {
@@ -110,9 +138,6 @@ var AG = (function () {
     }
   }
 
-
-
-
   return {
     Asteroid: Asteroid,
     Game: Game
@@ -121,13 +146,6 @@ var AG = (function () {
 
 
 
-// function draw(ctx) {
-
-//   ctx.fillStyle = "rgb(200,0,0)";
-//   ctx.fillRect (13, 10, 100, 50);
-//   ctx.save();
-//   ctx.translate(10,15);
-// }
 
 $(function(){
   var canvas = $('canvas');
@@ -136,7 +154,4 @@ $(function(){
   game = new AG.Game(ctx);
   console.log(game.asteroids);
   game.start();
-
-
-
 });
