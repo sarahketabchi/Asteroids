@@ -7,9 +7,9 @@ var AG = (function () {
     this.vel = vel;
 
     this.draw = function(ctx) {
-      randColor1 = 0;//Math.floor(Math.random() * 255);
-      randColor2 = 0;//Math.floor(Math.random() * 255);
-      randColor3 = 0;//Math.floor(Math.random() * 255);
+      randColor1 = Math.floor(Math.random() * 255);
+      randColor2 = Math.floor(Math.random() * 255);
+      randColor3 = Math.floor(Math.random() * 255);
       ctx.beginPath();
       ctx.arc(this.position[0], this.position[1],(this.size)/2 ,0,Math.PI*2,true);
       ctx.fillStyle = "rgba(" + randColor1 + "," + randColor2 + "," + randColor3 + " ,0.5)";
@@ -33,10 +33,6 @@ var AG = (function () {
       }
     };
 
-    this.asteroidReduce() {
-
-    }
-
   }
 
 
@@ -48,6 +44,15 @@ var AG = (function () {
     velX = plusOrMinus * ((Math.random() * 2));
     velY = plusOrMinus * ((Math.random() * 2));
     return asteroid = new Asteroid(randX, randY, randSize, [velX, velY]);
+  }
+
+  Asteroid.reduceAsteroid = function(asteroid) {
+    var size = asteroid.size;
+    var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+    velX = plusOrMinus * ((Math.random() * 2));
+    velY = plusOrMinus * ((Math.random() * 2));
+
+    return [ new Asteroid(asteroid.position[0],asteroid.position[1], new Asteroid(asteroid.position[0],asteroid.position[1], size/2, [velX, velY]), new Asteroid(asteroid.position[0],asteroid.position[1], size/2, asteroid.vel) ];
   }
 
   var Ship = function(game) {
@@ -127,17 +132,18 @@ var AG = (function () {
       var bulletThis = this;
 
        this.checkHitAsteroid();
-
-
     }
 
     this.checkHitAsteroid = function () {
       _.each(game.asteroids, function(asteroid) {
-
         var distance =  Math.sqrt(Math.pow((that.position[0] - asteroid.position[0]), 2) +
                         Math.pow((that.position[1] - asteroid.position[1]), 2))
         if (distance < ((asteroid.size)/2) + (that.size)/2) {
-          console.log("BOOM");
+          _.each(Asteroid.reduceAsteroid(asteroid), function(asteroid) {
+            if (asteroid.size > 20) {
+              game.asteroids.push(asteroid);
+            }
+          });
           game.asteroids = _.without(game.asteroids, asteroid);
           game.bullets = _.without(game.bullets, that);
         }
