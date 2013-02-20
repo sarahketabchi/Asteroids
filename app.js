@@ -11,23 +11,23 @@ var AG = (function () {
 
     this.update = function() {
       this.position[0] = this.position[0] + vel[0];
-      if ((this.position[0] < 0) || (this.position[0] > 500)) {
+      if ((this.position[0] < 0) || (this.position[0] > (500 - this.size))) {
         vel[0] = vel[0] * -1;
       };
       this.position[1] = this.position[1] + vel[1];
-      if ((this.position[1] < 0) || (this.position[1] > 500)) {
+      if ((this.position[1] < 0) || (this.position[1] > (500 - this.size))) {
         vel[1] = vel[1] * -1;
       };
     };
   }
 
   Asteroid.randomAsteroid = function() {
-    randX = Math.floor(Math.random() * 500);
-    randY = Math.floor(Math.random() * 500);
     randSize = Math.floor(Math.random() * 20) + 20;
+    randX = Math.floor(Math.random() * (500 - randSize));
+    randY = Math.floor(Math.random() * (500 - randSize));
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-    velX = plusOrMinus * (Math.floor(Math.random() * 5) + 1);
-    velY = plusOrMinus * (Math.floor(Math.random() * 5) + 1);
+    velX = plusOrMinus * (Math.floor(Math.random() * 2) + 1);
+    velY = plusOrMinus * (Math.floor(Math.random() * 2) + 1);
     return asteroid = new Asteroid(randX, randY, randSize, [velX, velY]);
   }
 
@@ -35,7 +35,7 @@ var AG = (function () {
     var that = this;
 
     this.asteroids = [];
-    for(i = 0; i < 10; i ++) {
+    for(i = 0; i < 5; i ++) {
       this.asteroids.push(Asteroid.randomAsteroid());
     }
 
