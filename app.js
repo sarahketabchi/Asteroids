@@ -1,5 +1,5 @@
 var AG = (function () {
-  var FPS = (1000/32);
+  var FPS = (1000/60);
 
   var Asteroid = function (x, y, size, vel) {
     this.position = [x, y];
@@ -32,7 +32,13 @@ var AG = (function () {
         this.position[1] = 0;
       }
     };
+
+    this.asteroidReduce() {
+
+    }
+
   }
+
 
   Asteroid.randomAsteroid = function() {
     randSize = Math.floor(Math.random() * 50) + 50;
@@ -72,13 +78,19 @@ var AG = (function () {
       } else if (this.position[1] > 500) {
         this.position[1] = 0;
       }
-
     };
 
-    this.power = function(dx, dy) {
+    this.power = function(dx, dy, game) {
       vel[0] = vel[0] + dx;
       vel[1] = vel[1] + dy;
     };
+
+    this.fireBullet = function() {
+      var speed = Math.sqrt(Math.pow(vel[0], 2) + Math.pow(vel[1], 2))
+      var direction =[vel[0]/speed, vel[1]/speed]
+      var pos = this.position;
+      var bullet = new Bullet(pos, direction, game);
+    }
 
     this.isHit = function() {
       var trueToggle = false;
@@ -93,10 +105,51 @@ var AG = (function () {
     }
   }
 
+  var Bullet = function(pos, dir, game) {
+    this.direction = dir;
+    this.position = [pos[0], pos[1]];
+    this.speed = 20;
+    this.size = 6
+    this.vel = [(dir[0] * this.speed), (dir[1] * this.speed)];
+    var that = this;
+    game.bullets.push(this);
+
+    this.draw = function(ctx) {
+      ctx.beginPath();
+      ctx.arc(this.position[0], this.position[1],this.size/2 ,0,Math.PI*2,true);
+      ctx.fillStyle = "rgb(200,0,0)";
+      ctx.fill();
+    };
+
+    this.update = function() {
+      this.position[0] = this.position[0] + this.vel[0];
+      this.position[1] = this.position[1] + this.vel[1];
+      var bulletThis = this;
+
+       this.checkHitAsteroid();
+
+
+    }
+
+    this.checkHitAsteroid = function () {
+      _.each(game.asteroids, function(asteroid) {
+
+        var distance =  Math.sqrt(Math.pow((that.position[0] - asteroid.position[0]), 2) +
+                        Math.pow((that.position[1] - asteroid.position[1]), 2))
+        if (distance < ((asteroid.size)/2) + (that.size)/2) {
+          console.log("BOOM");
+          game.asteroids = _.without(game.asteroids, asteroid);
+          game.bullets = _.without(game.bullets, that);
+        }
+      });
+    };
+  }
+
   var Game = function(ctx) {
     var intervalID = undefined;
     var that = this;
     var ship = new Ship(that);
+    this.bullets = [];
 
     this.asteroids = [];
     for(i = 0; i < 5; i ++) {
@@ -107,6 +160,7 @@ var AG = (function () {
     key('down', function(){ ship.power(0, 0.5) });
     key('left', function(){ ship.power(-0.5, 0) });
     key('right', function(){ ship.power(0.5, 0) });
+    key('space', function(){ ship.fireBullet() });
 
     this.draw = function() {
       ctx.clearRect(0,0,500,500);
@@ -114,6 +168,9 @@ var AG = (function () {
         asteroid.draw(ctx);
       });
       ship.draw(ctx);
+      _.each(this.bullets, function(bullet) {
+        bullet.draw(ctx);
+      });
     }
 
     this.update = function() {
@@ -121,16 +178,21 @@ var AG = (function () {
         asteroid.update();
       });
       ship.update();
+
+      _.each(this.bullets, function(bullet) {
+        bullet.update();
+      });
     }
 
     this.updateDraw = function() {
-      that.draw();
-      that.update();
 
-      if (ship.isHit()) {
-        alert("You're dead!");
-        clearInterval(intervalID);
-      };
+      that.update();
+      that.draw();
+
+      // if (ship.isHit()) {
+      //   alert("You're dead!");
+      //   clearInterval(intervalID);
+      // };
     }
 
     this.start = function(){
